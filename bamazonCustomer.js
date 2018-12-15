@@ -25,7 +25,7 @@ connection.connect(function(err){
 });
 
 
-//=================================Inquirer introduction===============================
+//--Beginning of the Inquirer
 
 function startPrompt() {
 
@@ -43,12 +43,12 @@ function startPrompt() {
             console.log("Thank you! Come back soon!");
         }
     });
-//=====}===
+//--
 
 //view products list
 function inventory() {
 
-    // instantiate
+    // declare var of inventory things
     var table = new Table({
         head: ['ItemID', 'Item', 'Department', 'Price', 'Stock'],
         colWidths: [10, 30, 30, 30, 30]
