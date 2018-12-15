@@ -50,7 +50,7 @@ function inventory() {
 
     // instantiate
     var table = new Table({
-        head: ['ID', 'Item', 'Department', 'Price', 'Stock'],
+        head: ['ItemID', 'Item', 'Department', 'Price', 'Stock'],
         colWidths: [10, 30, 30, 30, 30]
     });
 
@@ -64,14 +64,14 @@ function inventory() {
         connection.query("SELECT * FROM products", function(err, res) {
             for (var i = 0; i < res.length; i++) {
 
-                var itemId = res[i].item_id,
-                    productName = res[i].product_name,
-                    departmentName = res[i].department_name,
+                var item_id = res[i].item_id,
+                    product_name = res[i].product_name,
+                    department_name = res[i].department_name,
                     price = res[i].price,
-                    stockQuantity = res[i].stock_quantity;
+                    stock_quantity = res[i].stock_quantity;
 
               table.push(
-                  [itemId, productName, departmentName, price, stockQuantity]
+                  [item_id, product_name, department_name, price, stock_quantity]
             );
           }
             
@@ -183,4 +183,4 @@ function confirmPrompt(newStock, purchaseId) {
         }
     });
 }
-
+}
