@@ -1,4 +1,4 @@
-//dependencies
+//node dependencies
 
 var mysql = require("mysql");
 var inquirer = require('inquirer');
@@ -21,13 +21,13 @@ var connection = mysql.createConnection({
 connection.connect(function(err){
     if(err) throw err;
     console.log("connected as id" + connection.threadId);
-  startPrompt();
+  openSales();
 });
 
 
 //--Beginning of the Inquirer
 
-function startPrompt() {
+function openSales() {
 
     inquirer.prompt([{
 
@@ -36,9 +36,9 @@ function startPrompt() {
         message: "Welcome to Bamazon! Would you like to view our inventory?",
         default: true
 
-    }]).then(function(user) {
-        if (user.confirm === true) {
-            inventory();
+    }]).then(function(customer) {
+        if (customer.confirm === true) {
+            showinventory();
         } else {
             console.log("Thank you! Come back soon!");
         }
@@ -46,7 +46,7 @@ function startPrompt() {
 //--
 
 //view products list
-function inventory() {
+function showInventory() {
 
     // declare var of inventory things
     var table = new Table({
@@ -54,10 +54,10 @@ function inventory() {
         colWidths: [10, 30, 30, 30, 30]
     });
 
-    listInventory();
+   displayInventory();
 
     // products table stores products in an array form and that is how we access the products
-    function listInventory() {
+    function displayInventory() {
 
         //making a query connection so as to SELECT from products 
 
@@ -75,18 +75,18 @@ function inventory() {
             );
           }
             
-            console.log("YOU NEED WE'VE GOT IT");
-            
+            console.log("YOU NEED WE,VE GOT IT");
+            //outputs table information as a string ""
             console.log(table.toString());
             
-            continuePrompt();
+            firstPrompt();
         });
     }
 }
 
 //--Inquirer user purchase--
 
-function continuePrompt() {
+function firstPrompt() {
 
     inquirer.prompt([{
 
@@ -95,9 +95,9 @@ function continuePrompt() {
         message: "Would you like to purchase an item?",
         default: true
 
-    }]).then(function(user) {
-        if (user.continue === true) {
-            selectionPrompt();
+    }]).then(function(customer) {
+        if (customer.continue === true) {
+            choicePrompt();
         } else {
             console.log("Thank you! Come back soon!");
         }
@@ -105,7 +105,7 @@ function continuePrompt() {
 }
 
 //prompt to input the item ID and the DB is able to search for it
-function selectionPrompt() {
+function choicePrompt() {
 
     inquirer.prompt([{
 
@@ -119,34 +119,34 @@ function selectionPrompt() {
             message: "Enter desired units to purchase!",
 
         }
-    ]).then(function(userPurchase) {
+    ]).then(function(customerPurchase) {
 
         //connect to database to find stock_quantity in database. If user quantity input is greater than stock, decline purchase.
 
-        connection.query("SELECT * FROM products WHERE item_id=?", userPurchase.inputId, function(err, res) {
+        connection.query("SELECT * FROM products WHERE item_id=?", customerPurchase.inputId, function(err, res) {
             for (var i = 0; i < res.length; i++) {
 
-                if (userPurchase.inputNumber > res[i].stock_quantity) {
+                if (customerPurchase.inputNumber > res[i].stock_quantity) {
 
                    console.log(" Dear customer Sorry!We are low on stock right now.");
                    
-                    startPrompt();
+                    openSales();
 
                 } else {
                     //show the selected item's information
                     
                     console.log("You are about to buy:");
-                    console.log("Item: " + res[i].product_name);
-                    console.log("Department: " + res[i].department_name);
-                    console.log("\nPrice: " + res[i].price);
-                    console.log("\nQuantity: " + userPurchase.inputNumber);                    
-                    console.log("Your Total is: " + res[i].price * userPurchase.inputNumber);
+                    console.log("\nItem: " + res[i].product_name);
+                    console.log("\nDepartment: " + res[i].department_name);
+                    console.log("\nThe Price is: " + res[i].price);
+                    console.log("\nQuantity purchased: " + customerPurchase.inputNumber);                    
+                    console.log("\nYour Total is: " + res[i].price * customerPurchase.inputNumber);
                 
 
-                    var newStock = (res[i].stock_quantity - userPurchase.inputNumber);
-                    var purchaseId = (userPurchase.inputId);
+                    var newStock = (res[i].stock_quantity - customerPurchase.inputNumber);
+                    var purchaseId = (customerPurchase.inputId);
                     //console.log(newStock);
-                    confirmPrompt(newStock, purchaseId);
+                    checkOut(newStock, purchaseId);
                 }
             }
         });
@@ -154,17 +154,18 @@ function selectionPrompt() {
 }
 
 //proceed to checkout
-function confirmPrompt(newStock, purchaseId) {
+function checkOut(newStock, purchaseId) {
 
     inquirer.prompt([{
 
         type: "confirm",
-        name: "confirmPurchase",
-        message: "Are you sure you would like to purchase this item and quantity?",
+        name: "acceptPurchase",
+        message: "Do you want to proceed with this purchase?",
         default: true
-
-    }]).then(function(userConfirm) {
-        if (userConfirm.confirmPurchase === true) {
+//if customer wants to checkout, continue and run the function customerConfirm
+    }]).then(function(customerConfirm) {
+        //if buyer confirms the intention to purchase the query db and update purchase/stockqty
+        if (customerConfirm.acceptPurchase === true) {
 
             //After customer checks out, connect to DB and update the s
 
@@ -172,14 +173,16 @@ function confirmPrompt(newStock, purchaseId) {
                 stock_quantity: newStock
             }, {
                 item_id: purchaseId
-            }], function(err, res) {});
+            }], function(err, res) {
+            });
 
             console.log("Anything else we can do for you today?");
-            
-            startPrompt();
+            //reprompts bamazon
+            openSales();
         } else {
             console.log("Please check with our other locations");
-            startPrompt();
+            // starts bamazon store again
+            openSales();
         }
     });
 }
