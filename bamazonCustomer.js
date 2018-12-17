@@ -128,7 +128,7 @@ function choicePrompt() {
 
                 if (customerPurchase.inputNumber > res[i].stock_quantity) {
 
-                   console.log(" Dear customer Sorry!We are low on stock right now.");
+                   console.log(" Dear customer Sorry!Insufficient quantity!");
                    
                     openSales();
 
