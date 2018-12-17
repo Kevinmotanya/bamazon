@@ -109,40 +109,36 @@ function openSales() {
         inquirer.prompt([{
 
             type: "input",
-            name: "inputId",
+            name: "input_Id",
             message: "Enter item ID to be able to do purchase!",
         }, {
             type: "input",
-            name: "inputNumber",
+            name: "inputNum",
             message: "Enter desired units to purchase!",
 
         }]).then(function(customerPurchase) {
 
             //connect to database to find stock_quantity in database. If user quantity input is greater than stock, decline purchase.
 
-            connection.query("SELECT * FROM products WHERE item_id=?", customerPurchase.inputId, function(err, res) {
+            connection.query("SELECT * FROM products WHERE item_id=?", customerPurchase.input_Id, function(err, res) {
                 for (var i = 0; i < res.length; i++) {
 
-                    if (customerPurchase.inputNumber > res[i].stock_quantity) {
+                    if (customerPurchase.inputNum > res[i].stock_quantity) {
 
                         console.log(" Dear customer Sorry!Insufficient quantity!");
 
                         openSales();
 
                     } else {
-                        //show the selected item's information
+                        //show the customer the total cost of their purchase.
 
                         console.log("You are about to buy:");
-                        console.log("\nItem: " + res[i].product_name);
-                        console.log("\nDepartment: " + res[i].department_name);
-                        console.log("\nThe Price is: " + res[i].price);
-                        console.log("\nQuantity purchased: " + customerPurchase.inputNumber);
-                        console.log("\nYour Total is: " + res[i].price * customerPurchase.inputNumber);
+                        console.log("\nItem: " + res[i].product_name + "\nDepartment: " + res[i].department_name + "\nThe Price is: " + res[i].price + "\nQuantity purchased: " + customerPurchase.inputNum + "\nYour Total is: " + res[i].price * customerPurchase.inputNum);
 
-                        var newStock = (res[i].stock_quantity - customerPurchase.inputNumber);
-                        var purchaseId = (customerPurchase.inputId);
+                        var updatedStock = (res[i].stock_quantity - customerPurchase.inputNum);
+                        var purchaseId = (customerPurchase.input_Id);
                         //console.log(newStock);
-                        checkOut(newStock, purchaseId);
+                        checkOut(updatedStock, purchaseId);
                     }
                 }
             });
@@ -150,23 +146,23 @@ function openSales() {
     }
 
     //proceed to checkout
-    function checkOut(newStock, purchaseId) {
+    function checkOut(updatedStock, purchaseId) {
 
         inquirer.prompt([{
 
             type: "confirm",
-            name: "acceptPurchase",
+            name: "agreeToPurchase",
             message: "Do you want to proceed with this purchase?",
             default: true
                 //if customer wants to checkout, continue and run the function customerConfirm
         }]).then(function(customerConfirm) {
-            //if buyer confirms the intention to purchase the query db and update purchase/stockqty
-            if (customerConfirm.acceptPurchase === true) {
+            //if buyer confirms the intention to purchase update the SQL database to reflect the remaining quantity.
+            if (customerConfirm.agreeToPurchase === true) {
 
                 //After customer checks out, connect to DB and update the s
 
                 connection.query("UPDATE products SET ? WHERE ?", [{
-                    stock_quantity: newStock
+                    stock_quantity: updatedStock
                 }, {
                     item_id: purchaseId
                 }], function(err, res) {});
