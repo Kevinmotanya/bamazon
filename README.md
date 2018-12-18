@@ -76,8 +76,4 @@ Make sure you save and require the MySQL and Inquirer npm packages in your homew
 
 - - -
 
-* If you finished Challenge #2 and put in all the hours you were willing to spend on this activity, then rest easy! Otherwise continue to the next and final challenge.
-
-- - -
-
 
